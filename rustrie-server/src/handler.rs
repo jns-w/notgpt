@@ -2,8 +2,9 @@ use crate::{
     model::{AppState, SearchOptions},
     response::{GenericResponse},
 };
-use actix_web::{get, post, put, web, HttpResponse, Responder};
+use actix_web::{get, put, web, HttpResponse, Responder};
 use crate::response::PrefixResponse;
+use crate::trie::Suggestion;
 
 
 #[get("/ping")]
@@ -15,30 +16,6 @@ async fn ping_handler() -> impl Responder {
         message: MESSAGE.to_string(),
     };
     HttpResponse::Ok().json(response_json)
-}
-
-#[get("/search/prefix")]
-async fn prefix_handler(
-    opts: web::Query<SearchOptions>,
-    data: web::Data<AppState>) -> impl Responder {
-    let db = data.trie_db.lock().unwrap();
-
-    let term = opts.term
-        .to_owned()
-        .unwrap_or("".to_string());
-
-    println!("finding predictions");
-
-    let result: Vec<String> = db.prefix(term);
-
-    println!("this {:?}", result);
-
-    let response = PrefixResponse {
-        status: "success".to_string(),
-        data: result,
-    };
-
-    HttpResponse::Ok().json(response)
 }
 
 #[get("/search")]
@@ -57,6 +34,29 @@ async fn search_handler(
     HttpResponse::Ok()
 }
 
+#[get("/search/prefix")]
+async fn prefix_handler(
+    opts: web::Query<SearchOptions>,
+    data: web::Data<AppState>) -> impl Responder {
+    let db = data.trie_db.lock().unwrap();
+
+    let term = opts.term
+        .to_owned()
+        .unwrap_or("".to_string());
+
+    println!("finding predictions");
+
+    let result: Vec<Suggestion> = db.prefix(term);
+
+    println!("this {:?}", result);
+
+    let response = PrefixResponse {
+        status: "success".to_string(),
+        data: result,
+    };
+
+    HttpResponse::Ok().json(response)
+}
 
 #[get("/search/exists")]
 async fn exists_handler(
@@ -77,8 +77,6 @@ async fn exists_handler(
 
     HttpResponse::Ok()
 }
-
-
 
 pub fn config(conf: &mut web::ServiceConfig) {
     let scope = web::scope("/api")

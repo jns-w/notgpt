@@ -1,4 +1,5 @@
 use serde::Serialize;
+use crate::trie::Suggestion;
 // use crate::model::Search;
 // use crate::model::SearchOptions;
 
@@ -11,5 +12,5 @@ pub struct GenericResponse {
 #[derive(Serialize, Debug)]
 pub struct PrefixResponse {
     pub status: String,
-    pub data: Vec<String>,
+    pub data: Vec<Suggestion>,
 }

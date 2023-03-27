@@ -1,3 +1,5 @@
+extern crate core;
+
 mod handler;
 mod model;
 mod response;

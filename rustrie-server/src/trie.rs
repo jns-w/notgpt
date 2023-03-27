@@ -1,9 +1,16 @@
 use std::collections::HashMap;
+use serde::Serialize;
 
 #[derive(Default)]
 pub struct TrieNode {
     children: HashMap<char, TrieNode>,
     is_end: bool,
+    weight: u32,
+}
+
+#[derive(Serialize, Debug)]
+pub struct Suggestion {
+    term: String,
     weight: u32,
 }
 
@@ -46,7 +53,7 @@ impl Trie {
         node.is_end
     }
 
-    pub fn prefix(&self, prefix: String) -> Vec<String> {
+    pub fn prefix(&self, prefix: String) -> Vec<Suggestion> {
         let mut node = &self.root;
         println!("Prefix Fn: Searching.. {}", prefix);
         for c in prefix.chars() {
@@ -59,12 +66,24 @@ impl Trie {
         let mut output = vec![];
         self.collect_words(node, prefix, &mut output);
         println!("Prefix Fn output:{:?}", output);
-        output
+
+        // rank output in descending weight
+        // limit output to 10
+        output.sort_by_key(|suggestion| suggestion.weight);
+        output.reverse();
+        output.truncate(10);
+
+        return output
     }
 
-    pub fn collect_words(&self, node: &TrieNode, prefix: String, words: &mut Vec<String>) {
+    pub fn collect_words(&self, node: &TrieNode, prefix: String, words: &mut Vec<Suggestion>) {
         if node.is_end {
-            words.push(prefix.clone());
+            let suggestion = Suggestion {
+                term: prefix.clone(),
+                weight: node.weight,
+            };
+
+            words.push(suggestion);
         }
 
         for (c, child) in &node.children {
