@@ -7,10 +7,21 @@ mod trie;
 
 use actix_web::middleware::Logger;
 use actix_web::{http::header, web, App, HttpServer};
+
+use tokio::time::interval;
 use model::AppState;
 use dotenv::dotenv;
 
 use actix_cors::Cors;
+
+
+async fn trending_update(state: web::Data<AppState>) {
+    let trending = &mut state.trending.lock().unwrap();
+
+
+
+
+}
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
@@ -28,7 +39,7 @@ async fn main() -> std::io::Result<()> {
     println!("Server running at port {}", port);
 
     HttpServer::new(move || {
-        let cors = Cors::default()
+        let cors = Cors::permissive()
             .allowed_origin("http://localhost:3000")
             .allowed_origin("http://localhost:3000/")
             .allowed_methods(vec!["GET", "POST"])
@@ -49,3 +60,4 @@ async fn main() -> std::io::Result<()> {
         .run()
         .await
 }
+

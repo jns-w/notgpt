@@ -14,3 +14,9 @@ pub struct PrefixResponse {
     pub status: String,
     pub data: Vec<Suggestion>,
 }
+
+#[derive(Serialize, Debug)]
+pub struct TrendingResponse {
+    pub status: String,
+    pub data: Vec<String>,
+}

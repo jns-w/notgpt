@@ -3,7 +3,7 @@ use crate::{
     response::{GenericResponse},
 };
 use actix_web::{get, put, web, HttpResponse, Responder};
-use crate::response::PrefixResponse;
+use crate::response::{PrefixResponse, TrendingResponse};
 use crate::trie::Suggestion;
 
 
@@ -16,6 +16,23 @@ async fn ping_handler() -> impl Responder {
         message: MESSAGE.to_string(),
     };
     HttpResponse::Ok().json(response_json)
+}
+
+#[get("/trending")]
+async fn trending_handler(data: web::Data<AppState>) -> impl Responder {
+    let mut trending = data.trending.lock().unwrap();
+    let result: Vec<String> = Vec::new();
+
+    println!("trending result: {:?}", result);
+
+    let response = &TrendingResponse {
+        status: "success".to_string(),
+        data: result
+    };
+    // vec!["hello world".to_string(), "hello world there".to_string(), "hell is a place \
+    //     on earth".to_string(), "hello there".to_string()]
+
+    HttpResponse::Ok().json(response)
 }
 
 #[get("/search")]
@@ -81,6 +98,7 @@ async fn exists_handler(
 pub fn config(conf: &mut web::ServiceConfig) {
     let scope = web::scope("/api")
         .service(ping_handler)
+        .service(trending_handler)
         .service(prefix_handler)
         .service(search_handler)
         .service(exists_handler);

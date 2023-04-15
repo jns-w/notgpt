@@ -31,7 +31,7 @@ impl Trie {
 
         println!("Search Function: Searching.. {}", str);
 
-        for c in str.chars() {
+        for c in str.to_lowercase().chars() {
             node = node.children.entry(c).or_default();
         }
 
@@ -92,6 +92,7 @@ impl Trie {
             self.collect_words(child, new_prefix, words);
         }
     }
+
 
     // pub fn delete(&mut self, str: String) -> bool {
     //     if str.is_empty() {
