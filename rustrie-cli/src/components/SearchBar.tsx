@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState} from "react";
+import React, {useEffect, useRef, useState} from "react";
 import {useDebounce, useOnClickOutside} from "usehooks-ts";
 import axios from "axios";
 
@@ -8,13 +8,12 @@ function SearchBar() {
   const debouncedInput = useDebounce(input, 100)
 
   const [lines, setLines] = useState(0)
-  const [textWidth, setTextWidth] = useState(0)
 
   const [trending, setTrending] = useState<Array<String>>([])
   const [suggestions, setSuggestions] = useState<Array<String>>([])
 
-  const inputRef = useRef(null);
-  const canvasRef = useRef();
+  const inputRef = useRef<HTMLTextAreaElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
 
 
   // Handling Clicks
@@ -29,14 +28,14 @@ function SearchBar() {
   useOnClickOutside(inputRef, handleClickOutside)
 
   // Handling Typing
-  function inputHandler(e) {
+  function inputHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setInput(e.target.value)
     if (input.length === 0) {
       setSuggestions([])
     }
   }
 
-  function keyHandler(e) {
+  function keyHandler(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter") {
       e.preventDefault()
       search()
@@ -45,10 +44,10 @@ function SearchBar() {
 
   // Handling multi-line search terms
   // we check for length of typed text
-  function getWidth() {
-    const canvas = canvasRef.current
-    const context = canvas.getContext("2d")
-    const inputStyles = window.getComputedStyle(inputRef.current);
+  function getWidth(): number {
+    const canvas: HTMLCanvasElement = canvasRef.current!
+    const context = canvas.getContext("2d") as CanvasRenderingContext2D
+    const inputStyles: CSSStyleDeclaration = window.getComputedStyle(inputRef.current!);
     context.font = `${inputStyles.getPropertyValue("font-weight")} ${inputStyles.getPropertyValue("font-size")} ${inputStyles.getPropertyValue("font-family")}`;
     return context.measureText(input).width;
   }
@@ -77,7 +76,8 @@ function SearchBar() {
   }, [])
 
   useEffect(() => {
-    setLines(Math.floor(getWidth()/350))
+    const width: number = getWidth()
+    setLines(Math.floor(width/350))
   }, [input])
 
   useEffect(() => {
@@ -108,12 +108,13 @@ function SearchBar() {
 
 type SuggestionsProps = {
   list: Array<String>
+  header?: String
 }
 
-function Suggestions(props: SuggestionsProps) {
+function Suggestions(p: SuggestionsProps) {
   return (
     <div className="suggestions-container">
-      {props.list.map(el => <div key={el}>
+      {p.list.map((el, i) => <div key={i}>
         {el}
       </div>)}
     </div>

@@ -1,6 +1,4 @@
 import './App.scss'
-import {useRef, useState} from "react";
-import {useOnClickOutside} from "usehooks-ts";
 import SearchBar from "./components/SearchBar";
 
 function App() {
@@ -10,6 +8,4 @@ function App() {
     </div>
   )
 }
-
-
 export default App
