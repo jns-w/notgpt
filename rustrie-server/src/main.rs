@@ -4,6 +4,7 @@ mod handler;
 mod model;
 mod response;
 mod trie;
+mod queue;
 
 use actix_web::middleware::Logger;
 use actix_web::{http::header, web, App, HttpServer};
@@ -16,10 +17,6 @@ use actix_cors::Cors;
 
 
 async fn trending_update(state: web::Data<AppState>) {
-    let trending = &mut state.trending.lock().unwrap();
-
-
-
 
 }
 
@@ -31,7 +28,7 @@ async fn main() -> std::io::Result<()> {
     env_logger::init();
     let db = AppState::init();
     let app_data = web::Data::new(db);
-    println!("Trie running");
+    println!("App running");
 
     dotenv().ok();
     let port:u16 = std::env::var("PORT").expect("PORT must be set.").parse().unwrap();

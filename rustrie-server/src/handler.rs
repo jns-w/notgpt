@@ -20,8 +20,8 @@ async fn ping_handler() -> impl Responder {
 
 #[get("/trending")]
 async fn trending_handler(data: web::Data<AppState>) -> impl Responder {
-    let mut trending = data.trending.lock().unwrap();
     let result: Vec<String> = Vec::new();
+    let mut trending = data.trending.lock().unwrap();
 
     println!("trending result: {:?}", result);
 
@@ -40,13 +40,23 @@ async fn search_handler(
     opts: web::Query<SearchOptions>,
     data: web::Data<AppState>) -> impl Responder {
 
-    let mut db = data.trie_db.lock().unwrap();
+    let mut trie_db = data.trie_db.lock().unwrap();
+    let mut search_q = data.search_q.lock().unwrap();
+
     let term = opts.term
         .to_owned()
         .unwrap_or(" ".to_string());
     println!("term is {}", term);
 
-    db.search(term.to_string());
+    trie_db.search(term.to_string());
+    search_q.enqueue(term.to_string());
+
+    let len = search_q.len();
+    println!("search queue is now {} in length", len);
+
+    let val = search_q.peek();
+    let time = search_q.peek_time();
+    println!("added to q: {:?}, created at {:?}", val, time);
 
     HttpResponse::Ok()
 }

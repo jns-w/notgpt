@@ -13,13 +13,15 @@
 
   h2 {
     font-family: "Inter", sans-serif;
-    font-size: 26px;
-    font-weight: bold;
+    font-weight: 800;
+    font-size: 32px;
     text-align: left;
     margin: 5px 8px;
     padding: 0;
+    background: -webkit-linear-gradient(top left, #f5c014, #0bd0c0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
-
 }
 
 .search {
@@ -28,6 +30,7 @@
   user-select: none;
   min-height: 45px;
   width: 100%;
+  font-family: "Inter", sans-serif;
   font-size: 20px;
   word-wrap: break-word;
   word-break:  break-all;
@@ -48,9 +51,14 @@
 
   div {
     background: #1a1a1a;
-    display: flex;
+    display: inline-block;
+    position: relative;
     padding: 10px 20px;
     cursor: pointer;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    text-align: start;
 
     &:nth-child(1) {
       border-radius: 10px 10px 0 0;
@@ -68,6 +76,27 @@
       background: #101010;
     }
   }
+}
 
+$modal-width: 450px;
+$modal-height: 200px;
+.modal-wrapper {
+  width: 100vw;
+  height: 100vh;
+  position: absolute;
+  display: flex;
+  top:0;
+  left:0;
 
+  div {                                       // modal window
+    position: absolute;
+    background: #151515;
+    width: $modal-width;
+    height: $modal-height;
+    top: calc(50% - $modal-height);
+    left: calc(50% - $modal-width / 2);
+
+    border-radius: 20px;
+    padding: 25px 20px;
+  }
 }

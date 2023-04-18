@@ -2,10 +2,14 @@ import React, {useEffect, useRef, useState} from "react";
 import {useDebounce, useOnClickOutside} from "usehooks-ts";
 import axios from "axios";
 
-function SearchBar() {
+type SearchBarProps = {
+  searchFn: Function,
+}
+
+function SearchBar(props: SearchBarProps) {
   const [clicked, setClicked] = useState(false)
   const [input, setInput] = useState("")
-  const debouncedInput = useDebounce(input, 100)
+  const debouncedInput = useDebounce(input, 200)
 
   const [lines, setLines] = useState(0)
 
@@ -38,7 +42,7 @@ function SearchBar() {
   function keyHandler(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter") {
       e.preventDefault()
-      search()
+      props.searchFn(input)
     }
   }
 
@@ -64,11 +68,6 @@ function SearchBar() {
       arr.push(data[i].term)
     }
     setSuggestions(arr)
-  }
-
-  async function search() {
-    const res = await axios.get(`/api/search?term=${input}`)
-    console.log(res)
   }
 
   useEffect(() => {
