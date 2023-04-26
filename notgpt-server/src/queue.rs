@@ -1,10 +1,13 @@
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
+use std::sync::{Arc, Mutex};
+use std::collections::HashMap;
+
 
 #[derive(Debug)]
-pub struct Node<T> {
-    value: T,
-    created_at: u64,
-    next: Option<Box<Node<T>>>,
+pub struct Node<T> {                // think of a way to make value a pointer to the string
+    value: T,                       // instead of having repeated strings
+    created_at: u64,                // and this pointer needs to be searched fast, a
+    next: Option<Box<Node<T>>>,     // hashmap ? so, we store the Key, Value is String
 }
 
 impl<T> Node<T> {
@@ -32,11 +35,16 @@ impl<T> Node<T> {
 pub struct Queue<T> {
     head: Option<Box<Node<T>>>,
     len: usize,
+    trendmap: Arc<Mutex<HashMap<String, usize>>>,
 }
 
 impl<T> Queue<T> {
     pub fn new() -> Queue<T> {
-        Queue { head: None, len: 0 }
+        Queue { 
+            head: None, 
+            len: 0,
+            trendmap: Arc::new(Mutex::new(HashMap::new())),
+        }
     }
 
     pub fn enqueue(&mut self, value: T) {
@@ -75,7 +83,7 @@ impl<T> Queue<T> {
         self.len
     }
 
-    pub fn remove_old(&mut self, max_age: Duration) {
+    pub fn trim_old(&mut self, max_age: Duration) {
         while let Some(curr) = self.head.as_ref() {   // while self.head is not None, we assign
             if curr.age() > max_age {
                 self.dequeue();

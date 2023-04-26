@@ -1,9 +1,10 @@
 import React, {useEffect, useRef, useState} from "react";
-import {useDebounce, useOnClickOutside} from "usehooks-ts";
+import {useDebounce, useIsomorphicLayoutEffect, useOnClickOutside} from "usehooks-ts";
 import axios from "axios";
 
 type SearchBarProps = {
   searchFn: Function,
+  query: string | undefined,
 }
 
 function SearchBar(props: SearchBarProps) {
@@ -16,8 +17,8 @@ function SearchBar(props: SearchBarProps) {
   const [trending, setTrending] = useState<Array<String>>([])
   const [suggestions, setSuggestions] = useState<Array<String>>([])
 
-  const inputRef = useRef<HTMLTextAreaElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
 
   // Handling Clicks
@@ -70,9 +71,13 @@ function SearchBar(props: SearchBarProps) {
     setSuggestions(arr)
   }
 
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     getTrending()
+    if (props.query) {
+      setInput(props.query)
+    }
   }, [])
+
 
   useEffect(() => {
     const width: number = getWidth()

@@ -4,17 +4,11 @@ use std::collections::HashMap;
 use crate::trie::Trie;
 use crate::queue::Queue;
 
-#[allow(non_snake_case)]
-#[derive(Debug, Deserialize, Serialize, Clone)]
-pub struct Search {
-    pub id: Option<String>,
-    pub searchTerm: String,
-}
 
 pub struct AppState {
     pub trie_db: Arc<Mutex<Trie>>,
     pub search_q: Arc<Mutex<Queue<String>>>,
-    pub trending: Arc<Mutex<HashMap<String, usize>>>
+    pub trending: Arc<Mutex<HashMap<String, usize>>>    // might embed this in search_q
 }
 
 impl AppState {
@@ -25,6 +19,13 @@ impl AppState {
             trending: Arc::new(Mutex::new(HashMap::new())),
         }
     }
+}
+
+#[allow(non_snake_case)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct Search {
+    pub id: Option<String>,
+    pub searchTerm: String,
 }
 
 #[derive(Debug, Deserialize)]

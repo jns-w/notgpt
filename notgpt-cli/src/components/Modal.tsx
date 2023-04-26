@@ -1,12 +1,12 @@
-import {useState, useRef, useEffect} from "react";
-import {wait} from "../utils";
-import {useEventListener, useOnClickOutside} from "usehooks-ts";
+import { useState, useRef, useEffect } from "react";
+import { wait } from "../utils";
+import { useEventListener, useOnClickOutside } from "usehooks-ts";
 
 type ModalProps = {
   setMount: Function,
   header?: String,
-  children: any
-}
+  children: any,
+};
 
 export const Modal = (props: ModalProps) => {
   const [vis, setVis] = useState(false)
@@ -24,18 +24,15 @@ export const Modal = (props: ModalProps) => {
 
   useOnClickOutside(ref, closeModal)
 
-  useEventListener('keypress', (ev) => {
+  useEventListener("keypress", (ev) => {
     if (ev.key === "Escape") {
       closeModal()
     }
-  })
+  });
 
   return (
     <div className="modal-wrapper">
-      <div>
-        {props.children}
-      </div>
+      <div className="shine">{props.children}</div>
     </div>
-  )
-
-}
+  );
+};
