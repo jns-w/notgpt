@@ -8,12 +8,11 @@ pub struct TrieNode {
     weight: u32,
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Serialize, Debug, PartialEq)]
 pub struct Suggestion {
     term: String,
     weight: u32,
 }
-
 
 pub struct Trie {
     root: TrieNode,
@@ -64,32 +63,33 @@ impl Trie {
             }
         }
         let mut output = vec![];
-        self.collect_words(node, prefix, &mut output);
+        self.collect_words(node, &prefix, &mut output);
         println!("Prefix Fn output:{:?}", output);
 
-        // rank output in descending weight
-        // limit output to 10
-        output.sort_by_key(|suggestion| suggestion.weight);
+        // remove word if == to prefix -- this is likely to be first word of vec
+        if let Some(pos) = output.iter().position(|suggestion| suggestion.term == prefix) {
+            output.remove(pos);
+        }
+        output.sort_by_key(|suggestion| suggestion.weight); // rank output in descending weight
         output.reverse();
-        output.truncate(10);
+        output.truncate(10); // limit output to 10
 
         return output
     }
 
-    pub fn collect_words(&self, node: &TrieNode, prefix: String, words: &mut Vec<Suggestion>) {
+    pub fn collect_words(&self, node: &TrieNode, prefix: &String, words: &mut Vec<Suggestion>) {
         if node.is_end {
             let suggestion = Suggestion {
                 term: prefix.clone(),
                 weight: node.weight,
             };
-
             words.push(suggestion);
         }
 
         for (c, child) in &node.children {
             let mut new_prefix = prefix.clone();
             new_prefix.push(*c);
-            self.collect_words(child, new_prefix, words);
+            self.collect_words(child, &new_prefix, words);
         }
     }
 

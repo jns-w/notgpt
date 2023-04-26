@@ -14,12 +14,11 @@ function SearchBar(props: SearchBarProps) {
 
   const [lines, setLines] = useState(0)
 
-  const [trending, setTrending] = useState<Array<String>>([])
+  const [trending, setTrending] = useState<Array<String>>(["trending1", "trending2 test test", "trending3"])
   const [suggestions, setSuggestions] = useState<Array<String>>([])
 
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-
 
   // Handling Clicks
   function handleClick() {
@@ -43,6 +42,7 @@ function SearchBar(props: SearchBarProps) {
   function keyHandler(e: React.KeyboardEvent<HTMLTextAreaElement>) {
     if (e.key === "Enter") {
       e.preventDefault()
+      if (!input) return;
       props.searchFn(input)
     }
   }
@@ -59,7 +59,7 @@ function SearchBar(props: SearchBarProps) {
 
   async function getTrending() {
     const {data} = await axios.get('/api/trending').then(res => res.data)
-    setTrending(data)
+    // setTrending(data)
   }
 
   async function getSuggestions() {
@@ -82,6 +82,7 @@ function SearchBar(props: SearchBarProps) {
   useEffect(() => {
     const width: number = getWidth()
     setLines(Math.floor(width/350))
+    if (input.length === 1) getSuggestions(); // immediate search on first letter for promptness
   }, [input])
 
   useEffect(() => {
@@ -104,7 +105,7 @@ function SearchBar(props: SearchBarProps) {
         style={{height: `${45+(lines)*24}px`}}
       />
        <canvas ref={canvasRef} style={{display: "none"}}/>
-      {clicked && !input && <Suggestions list={trending}/>}
+      {clicked && !input && <Suggestions list={trending} header={"trending"}/>}
       {input && suggestions && <Suggestions list={suggestions}/>}
     </div>
   )
@@ -116,9 +117,15 @@ type SuggestionsProps = {
 }
 
 function Suggestions(p: SuggestionsProps) {
+  console.log(p.list)
   return (
     <div className="suggestions-container">
-      {p.list.map((el, i) => <div key={i}>
+      {p.header && p.list.length !== 0 &&
+        <div className="header">
+          Trending:
+        </div>}
+
+      {p.list.map((el, i) => <div className="suggestion" key={i}>
         {el}
       </div>)}
     </div>

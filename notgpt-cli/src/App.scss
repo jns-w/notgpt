@@ -50,11 +50,9 @@
   width: 100%;
 
   div {
-    background: #1a1a1a;
     display: inline-block;
     position: relative;
-    padding: 10px 20px;
-    cursor: pointer;
+    background: #1a1a1a;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
@@ -71,6 +69,17 @@
     &:only-child {
       border-radius: 10px;
     }
+  }
+
+  .header {
+    padding: 10px 20px 3px 20px;
+    font-size: 13px;
+    color: #757575;
+  }
+
+  .suggestion {
+    padding: 10px 20px;
+    cursor: pointer;
 
     &:hover {
       background: #101010;

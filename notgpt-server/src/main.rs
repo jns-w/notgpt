@@ -18,6 +18,8 @@ use actix_cors::Cors;
 
 async fn trending_update(state: web::Data<AppState>) {
 
+
+
 }
 
 #[actix_web::main]
