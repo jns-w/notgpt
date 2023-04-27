@@ -11,7 +11,6 @@ function SearchBar(props: SearchBarProps) {
   const [clicked, setClicked] = useState(false)
   const [input, setInput] = useState("")
   const debouncedInput = useDebounce(input, 200)
-
   const [lines, setLines] = useState(0)
 
   const [trending, setTrending] = useState<Array<String>>(["trending1", "trending2 test test", "trending3"])
@@ -106,18 +105,18 @@ function SearchBar(props: SearchBarProps) {
       />
        <canvas ref={canvasRef} style={{display: "none"}}/>
       {clicked && !input && <Suggestions list={trending} header={"trending"}/>}
-      {input && suggestions && <Suggestions list={suggestions}/>}
+      {input && suggestions && <Suggestions list={suggestions} input={input}/>}
     </div>
   )
 }
 
 type SuggestionsProps = {
-  list: Array<String>
-  header?: String
+  list: Array<String>,
+  header?: String,
+  input?: String
 }
 
 function Suggestions(p: SuggestionsProps) {
-  console.log(p.list)
   return (
     <div className="suggestions-container">
       {p.header && p.list.length !== 0 &&
@@ -125,9 +124,14 @@ function Suggestions(p: SuggestionsProps) {
           Trending:
         </div>}
 
-      {p.list.map((el, i) => <div className="suggestion" key={i}>
-        {el}
-      </div>)}
+      {p.list.map((el, i) => {
+        if (el === p.input) return;
+        return (
+          <div className="suggestion" key={i}>
+            {el}
+          </div>
+        )
+      })}
     </div>
   )
 }

@@ -55,7 +55,7 @@ impl Trie {
     pub fn prefix(&self, prefix: String) -> Vec<Suggestion> {
         let mut node = &self.root;
         println!("Prefix Fn: Searching.. {}", prefix);
-        for c in prefix.chars() {
+        for c in prefix.to_lowercase().chars() {
             if let Some(child) = node.children.get(&c) {
                 node = child
             } else {
@@ -80,7 +80,7 @@ impl Trie {
     pub fn collect_words(&self, node: &TrieNode, prefix: &String, words: &mut Vec<Suggestion>) {
         if node.is_end {
             let suggestion = Suggestion {
-                term: prefix.clone(),
+                term: prefix.clone().to_lowercase(),
                 weight: node.weight,
             };
             words.push(suggestion);
