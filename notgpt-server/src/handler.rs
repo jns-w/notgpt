@@ -41,7 +41,7 @@ async fn search_handler(
     data: web::Data<AppState>) -> impl Responder {
 
     let mut trie_db = data.trie_db.lock().unwrap();
-    let mut search_q = data.search_q.lock().unwrap();
+    let mut search_queue = data.search_queue.lock().unwrap();
 
     let term = opts.term
         .to_owned()
