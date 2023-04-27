@@ -7,7 +7,7 @@ use crate::queue::Queue;
 
 pub struct AppState {
     pub trie_db: Arc<Mutex<Trie>>,
-    pub search_q: Arc<Mutex<Queue<String>>>,
+    pub search_queue: Arc<Mutex<Queue<String>>>,
     pub trending: Arc<Mutex<HashMap<String, usize>>>    // might embed this in search_q
 }
 
@@ -15,7 +15,7 @@ impl AppState {
     pub fn init() -> AppState {
         AppState {
             trie_db: Arc::new(Mutex::new(Trie::new())),
-            search_q: Arc::new(Mutex::new(Queue::new())),
+            search_queue: Arc::new(Mutex::new(Queue::new())),
             trending: Arc::new(Mutex::new(HashMap::new())),
         }
     }
