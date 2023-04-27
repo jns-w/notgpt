@@ -49,13 +49,13 @@ async fn search_handler(
     println!("term is {}", term);
 
     trie_db.search(term.to_string());
-    search_q.enqueue(term.to_string());
+    search_queue.enqueue(term.to_string());
 
-    let len = search_q.len();
+    let len = search_queue.len();
     println!("search queue is now {} in length", len);
 
-    let val = search_q.peek();
-    let time = search_q.peek_time();
+    let val = search_queue.peek();
+    let time = search_queue.peek_time();
     println!("added to q: {:?}, created at {:?}", val, time);
 
     HttpResponse::Ok()
