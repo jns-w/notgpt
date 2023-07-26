@@ -1,5 +1,5 @@
 import React, {useEffect, useRef, useState} from "react";
-import {useDebounce, useIsomorphicLayoutEffect, useOnClickOutside} from "usehooks-ts";
+import {useDebounce, useEventListener, useIsomorphicLayoutEffect, useOnClickOutside} from "usehooks-ts";
 import {AnimatePresence, motion} from "framer-motion";
 import axios from "axios";
 
@@ -9,7 +9,7 @@ type SearchBarProps = {
 }
 
 function SearchBar(props: SearchBarProps) {
-  const [clicked, setClicked] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(false)
   const [input, setInput] = useState("")
   const debouncedInput = useDebounce(input, 200)
   const [lines, setLines] = useState(0)
@@ -22,15 +22,24 @@ function SearchBar(props: SearchBarProps) {
 
   // Handling Clicks
   function handleClick() {
-    setClicked(true)
+    setShowSuggestions(true)
   }
 
   function handleClickOutside() {
-    setClicked(false)
+    setShowSuggestions(false)
   }
 
   useOnClickOutside(inputRef, handleClickOutside)
 
+  useEventListener("keypress", (ev) => {
+    if (ev.key === "Escape") {
+      handleClickOutside()
+    } else {
+      if (ev.target === inputRef.current) {
+        setShowSuggestions(true)
+      }
+    }
+  }, inputRef)
   // Handling Typing
   function inputHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setInput(e.target.value)
@@ -91,6 +100,7 @@ function SearchBar(props: SearchBarProps) {
     }
   }, [debouncedInput])
 
+
   return (
     <div className="search-container">
       <h2>NotGPT</h2>
@@ -103,11 +113,12 @@ function SearchBar(props: SearchBarProps) {
         onChange={(e) => inputHandler(e)}
         onKeyDown={(e) => keyHandler(e)}
         style={{height: `${45 + (lines) * 24}px`}}
+        // transition={ {height: {duration: 0.2, ease: "easeOut", type: "spring", stiffness: 1000, damping: 50, bounce: 100}}}
       />
       <canvas ref={canvasRef} style={{display: "none"}}/>
       <AnimatePresence>
-        {clicked && !input && <Suggestions list={trending} header={"trending"}/>}
-        {clicked && input && suggestions && <Suggestions list={suggestions} input={input}/>}
+        {showSuggestions && !input && <Suggestions list={trending} header={"trending"}/>}
+        {showSuggestions && input && suggestions && <Suggestions list={suggestions} input={input}/>}
       </AnimatePresence>
     </div>
   )
@@ -121,44 +132,48 @@ type SuggestionsProps = {
 
 function Suggestions(props: SuggestionsProps) {
   return (
-      <motion.div
-        className="suggestions-container"
-        key={"suggestions-container"}
-        layout
-        transition={{duration: 0.15, ease: "easeOut", layout: {duration: 0.25, ease: "easeOut"}}}
-        initial={{opacity: 0, y: -10, scale: 1.05}}
-        animate={{
-          opacity: 1,
-          y: 0,
-          scale: 1,
-        }}
-        exit={{opacity: 0, y: -10}}
-      >
-        {props.header && props.list.length !== 0 &&
-            <motion.div
-                className="header"
-                layout
-                key={"header"}
-                initial={{opacity: 0, y: -10, scale: 1.05}}
-                animate={{opacity: 1, y: 0, scale: 1, transition: {delay: 0}}}
-            >
-                Trending:
-            </motion.div>}
-        {props.list.map((el, i) => {
-          return (
-            <motion.div
-              className="suggestion"
+    <motion.div
+      className="suggestions-container"
+      key={"suggestions-container"}
+      layout
+      transition={{
+        duration: 0.15,
+        ease: "easeOut",
+        layout: {duration: 0.25, ease: "easeOut", type: "spring", stiffness: 1000, damping: 50, bounce: 100}
+      }}
+      initial={{opacity: 0, y: -10, scale: 1.05}}
+      animate={{
+        opacity: 1,
+        y: 0,
+        scale: 1,
+      }}
+      exit={{opacity: 0, y: -10}}
+    >
+      {props.header && props.list.length !== 0 &&
+          <motion.div
+              className="header"
               layout
-              transition={{layout: {duration: 0.2, ease: "easeOut"}}}
-              key={el}
+              key={"header"}
               initial={{opacity: 0, y: -10, scale: 1.05}}
-              animate={{opacity: 1, y: 0, scale: 1, transition: {delay: i * 0.02}}}
-            >
-              {el}
-            </motion.div>
-          )
-        })}
-      </motion.div>
+              animate={{opacity: 1, y: 0, scale: 1, transition: {delay: 0}}}
+          >
+              Trending:
+          </motion.div>}
+      {props.list.map((el, i) => {
+        return (
+          <motion.div
+            className="suggestion"
+            layout
+            transition={{layout: {duration: 0.2, ease: "easeOut"}}}
+            key={el}
+            initial={{opacity: 0, y: -10, scale: 1.05}}
+            animate={{opacity: 1, y: 0, scale: 1, transition: {delay: i * 0.02}}}
+          >
+            {el}
+          </motion.div>
+        )
+      })}
+    </motion.div>
   )
 }
 
