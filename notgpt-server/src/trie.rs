@@ -66,10 +66,10 @@ impl Trie {
         self.collect_words(node, &prefix, &mut output);
         println!("Prefix Fn output:{:?}", output);
 
-        // remove word if == to prefix -- this is likely to be first word of vec
-        if let Some(pos) = output.iter().position(|suggestion| suggestion.term == prefix) {
-            output.remove(pos);
-        }
+        // // remove word if == to prefix -- this is likely to be first word of vec
+        // if let Some(pos) = output.iter().position(|suggestion| suggestion.term == prefix) {
+        //     output.remove(pos);
+        // }
         output.sort_by_key(|suggestion| suggestion.weight); // rank output in descending weight
         output.reverse();
         output.truncate(10); // limit output to 10

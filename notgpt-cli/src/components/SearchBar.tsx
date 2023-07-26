@@ -1,5 +1,6 @@
 import React, {useEffect, useRef, useState} from "react";
 import {useDebounce, useIsomorphicLayoutEffect, useOnClickOutside} from "usehooks-ts";
+import {AnimatePresence, motion} from "framer-motion";
 import axios from "axios";
 
 type SearchBarProps = {
@@ -64,7 +65,7 @@ function SearchBar(props: SearchBarProps) {
   async function getSuggestions() {
     const {data} = await axios.get(`/api/search/prefix?term=${input}`).then(res => res.data)
     let arr = []
-    for (let i = 0; i < data.length;  i++) {
+    for (let i = 0; i < data.length; i++) {
       arr.push(data[i].term)
     }
     setSuggestions(arr)
@@ -80,7 +81,7 @@ function SearchBar(props: SearchBarProps) {
 
   useEffect(() => {
     const width: number = getWidth()
-    setLines(Math.floor(width/350))
+    setLines(Math.floor(width / 350))
     if (input.length === 1) getSuggestions(); // immediate search on first letter for promptness
   }, [input])
 
@@ -101,11 +102,13 @@ function SearchBar(props: SearchBarProps) {
         onClick={() => handleClick()}
         onChange={(e) => inputHandler(e)}
         onKeyDown={(e) => keyHandler(e)}
-        style={{height: `${45+(lines)*24}px`}}
+        style={{height: `${45 + (lines) * 24}px`}}
       />
-       <canvas ref={canvasRef} style={{display: "none"}}/>
-      {clicked && !input && <Suggestions list={trending} header={"trending"}/>}
-      {input && suggestions && <Suggestions list={suggestions} input={input}/>}
+      <canvas ref={canvasRef} style={{display: "none"}}/>
+      <AnimatePresence>
+        {clicked && !input && <Suggestions list={trending} header={"trending"}/>}
+        {clicked && input && suggestions && <Suggestions list={suggestions} input={input}/>}
+      </AnimatePresence>
     </div>
   )
 }
@@ -116,23 +119,46 @@ type SuggestionsProps = {
   input?: String
 }
 
-function Suggestions(p: SuggestionsProps) {
+function Suggestions(props: SuggestionsProps) {
   return (
-    <div className="suggestions-container">
-      {p.header && p.list.length !== 0 &&
-        <div className="header">
-          Trending:
-        </div>}
-
-      {p.list.map((el, i) => {
-        if (el === p.input) return;
-        return (
-          <div className="suggestion" key={i}>
-            {el}
-          </div>
-        )
-      })}
-    </div>
+      <motion.div
+        className="suggestions-container"
+        key={"suggestions-container"}
+        layout
+        transition={{duration: 0.15, ease: "easeOut", layout: {duration: 0.25, ease: "easeOut"}}}
+        initial={{opacity: 0, y: -10, scale: 1.05}}
+        animate={{
+          opacity: 1,
+          y: 0,
+          scale: 1,
+        }}
+        exit={{opacity: 0, y: -10}}
+      >
+        {props.header && props.list.length !== 0 &&
+            <motion.div
+                className="header"
+                layout
+                key={"header"}
+                initial={{opacity: 0, y: -10, scale: 1.05}}
+                animate={{opacity: 1, y: 0, scale: 1, transition: {delay: 0}}}
+            >
+                Trending:
+            </motion.div>}
+        {props.list.map((el, i) => {
+          return (
+            <motion.div
+              className="suggestion"
+              layout
+              transition={{layout: {duration: 0.2, ease: "easeOut"}}}
+              key={el}
+              initial={{opacity: 0, y: -10, scale: 1.05}}
+              animate={{opacity: 1, y: 0, scale: 1, transition: {delay: i * 0.02}}}
+            >
+              {el}
+            </motion.div>
+          )
+        })}
+      </motion.div>
   )
 }
 

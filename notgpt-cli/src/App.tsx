@@ -3,9 +3,10 @@ import "@fontsource/inter"
 import "@fontsource/inter/800.css"
 import SearchBar from "./components/SearchBar";
 import {Modal} from "./components/Modal";
-import {Suspense, useEffect, useState} from "react";
+import {Suspense, useState} from "react";
 import axios from "axios";
 import {useIsomorphicLayoutEffect} from "usehooks-ts";
+import {AnimatePresence} from "framer-motion";
 
 type Params = {
   [key: string]: string
@@ -34,7 +35,12 @@ function App() {
   return (
     <div className="App">
       <SearchBar searchFn={search} query={params.q || undefined}/>
-      { resultsModal && <ResultsModal searchString={""} setMount={setResultsModal}/> }
+      <AnimatePresence>
+        {resultsModal && (
+          <ResultsModal isMounted={resultsModal} searchString={""} setMount={setResultsModal}/>
+        )}
+
+      </AnimatePresence>
     </div>
   )
 }
@@ -42,6 +48,7 @@ function App() {
 type ResultsModalProps = {
   searchString: String,
   setMount: Function,
+  isMounted: Boolean,
 }
 
 function ResultsModal(props: ResultsModalProps) {
@@ -58,11 +65,13 @@ function ResultsModal(props: ResultsModalProps) {
   }, [props.searchString])
 
   return (
-    <Modal setMount={props.setMount}>
-      <Suspense fallback={<Loading/>}>
-         Search Results for {props.searchString}
-      </Suspense>
-    </Modal>
+    <>
+        <Modal setMount={props.setMount}>
+          <Suspense fallback={<Loading/>}>
+            Search Results for {props.searchString}
+          </Suspense>
+        </Modal>
+    </>
   )
 }
 

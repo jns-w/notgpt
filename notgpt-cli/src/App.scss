@@ -42,17 +42,20 @@
 
 }
 
+
 .suggestions-container {
   display: flex;
   flex-direction: column;
-  padding-top: 5px;
+  //padding-top: 5px;
   border-radius: 10px;
   width: 100%;
+  height: auto;
+  background: #1a1a1a;
 
   div {
     display: inline-block;
     position: relative;
-    background: #1a1a1a;
+    //background: #1a1a1a;
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
