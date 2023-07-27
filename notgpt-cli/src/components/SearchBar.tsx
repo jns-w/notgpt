@@ -21,9 +21,9 @@ function SearchBar(props: SearchBarProps) {
   const [selected, setSelected] = useAtom(selectedSuggestionAtom)
   const [suggestionsCount, setSuggestionsCount] = useAtom(suggestionsCountAtom)
 
-  const [trending, setTrending] = useState<Array<String>>(["trending1", "trending2 test test", "trending3"])
+  const [trending, setTrending] = useState<string[]>(["trending1", "trending2", "trending3"])
   const [history, setHistory] = useAtom(historyAtom)
-  const [autocompletes, setAutocompletes] = useState<Array<String>>([]
+  const [autocompletes, setAutocompletes] = useState<string[]>([]
   )
 
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -155,16 +155,16 @@ function SearchBar(props: SearchBarProps) {
 }
 
 type SuggestionsProps = {
-  history?: Array<String>,
-  trending?: Array<String>,
-  autocompletes?: Array<String>,
-  header?: String,
-  input?: String
+  history?: Array<string>,
+  trending?: Array<string>,
+  autocompletes?: Array<string>,
+  header?: string,
+  input?: string
 }
 
 type SuggestionItem = {
   type: "header" | "history" | "trending" | "autocomplete",
-  text: String,
+  text: string,
   index?: number
 }
 
@@ -175,7 +175,10 @@ function Suggestions(props: SuggestionsProps) {
 
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([])
 
-  function highlightInputMatch(str: String, input: String) {
+  function highlightInputMatch(str: string, input: string) {
+    if (input.at(-1) == " ") {
+      input = input.slice(0, -1)
+    }
     const index = str.toLowerCase().indexOf(input.toLowerCase())
     if (index === -1) return str
     const first = str.slice(0, index)
@@ -188,6 +191,30 @@ function Suggestions(props: SuggestionsProps) {
         {third}
       </>
     )
+  }
+
+  // functions to check for prefix and substring matches
+  function prefixExistsIn(arr: SuggestionItem[], s: string) {
+    if (s.at(-1) === " ") {
+      s = s.slice(0, -1)
+    }
+    return arr.findIndex((el) => el.text.toLowerCase() === s.toLowerCase()) > -1
+  }
+
+  function isPrefixOf(s: string, prefix: string) {
+    if (prefix.at(-1) === " ") {
+      prefix = prefix.slice(0, -1)
+    }
+    return s.toLowerCase().startsWith(prefix.toLowerCase())
+  }
+
+  function isSubstringOf(s: string, substring: string, treshold: number) {
+    if (substring.at(-1) === " ") {
+      substring = substring.slice(0, -1)
+    }
+    let i = s.toLowerCase().indexOf(substring.toLowerCase())
+    if (i === 0) return true;
+    return substring.length > treshold && i > 0;
   }
 
   // compile different sources of suggestions
@@ -214,9 +241,21 @@ function Suggestions(props: SuggestionsProps) {
       // look for matches in history
       if (props.history && props.history.length !== 0) {
         // arr.push({type: "header", text: "Search history:"})
+        let substringMatches: string[] = []
         for (let i = 0; i < props.history.length; i++) {
-          if (props.history[i].toLowerCase().startsWith(props.input.toLowerCase())) {
+          // to check for prefix matches
+          if (isPrefixOf(props.history[i], props.input)) {
             arr.push({type: "history", text: props.history[i], index: count++})
+          } else {
+            if (isSubstringOf(props.history[i], props.input, 1)) {
+              substringMatches.push(props.history[i])
+            }
+          }
+        }
+        // add substring matches if there is lack of prefix matches
+        if (arr.length <= 5 && substringMatches.length !== 0) {
+          for (let i = 0; i < 5 && i < substringMatches.length; i++) {
+            arr.push({type: "history", text: substringMatches[i], index: count++})
           }
         }
       }
@@ -224,20 +263,18 @@ function Suggestions(props: SuggestionsProps) {
       if (props.autocompletes && props.autocompletes.length !== 0) {
         for (let i = 0; i < props.autocompletes.length; i++) {
           // check for duplication with history
-          if (arr.findIndex((el) => el.text === props.autocompletes![i]) > -1) continue; // skip if found
+          if (prefixExistsIn(arr, props.autocompletes[i])) continue; // skip if found
           arr.push({type: "autocomplete", text: props.autocompletes[i], index: count++})
         }
-
         // add trends if there is lack of autocomplete results
         if (props.autocompletes.length <= 5 && props.trending && props.trending.length !== 0) {
           arr.push({type: "header", text: "Trending:"})
           for (let i = 0; i < props.trending.length; i++) {
-            if (arr.findIndex((el) => el.text === props.trending![i]) > -1) continue; // skip if found duplicate
+            if (prefixExistsIn(arr, props.trending[i])) continue; // skip if found duplicate
             arr.push({type: "trending", text: props.trending[i], index: count++})
           }
         }
       }
-
     }
 
 
