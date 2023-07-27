@@ -15,6 +15,7 @@ function SearchBar(props: SearchBarProps) {
   const [lines, setLines] = useState(0)
 
   const [trending, setTrending] = useState<Array<String>>(["trending1", "trending2 test test", "trending3"])
+  const [history, setHistory] = useState<Array<String>>(["porn", "porn2"])
   const [suggestions, setSuggestions] = useState<Array<String>>([])
 
   const inputRef = useRef<HTMLTextAreaElement>(null)
@@ -40,6 +41,7 @@ function SearchBar(props: SearchBarProps) {
       }
     }
   }, inputRef)
+
   // Handling Typing
   function inputHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setInput(e.target.value)
@@ -117,7 +119,7 @@ function SearchBar(props: SearchBarProps) {
       />
       <canvas ref={canvasRef} style={{display: "none"}}/>
       <AnimatePresence>
-        {showSuggestions && !input && <Suggestions list={trending} header={"trending"}/>}
+        {showSuggestions && !input && <Suggestions list={trending} history={history} header={"trending"}/>}
         {showSuggestions && input && suggestions && <Suggestions list={suggestions} input={input}/>}
       </AnimatePresence>
     </div>
@@ -126,11 +128,28 @@ function SearchBar(props: SearchBarProps) {
 
 type SuggestionsProps = {
   list: Array<String>,
+  history?: Array<String>,
   header?: String,
   input?: String
 }
 
 function Suggestions(props: SuggestionsProps) {
+
+  function highlightInputMatch(str: String, input: String) {
+    const index = str.toLowerCase().indexOf(input.toLowerCase())
+    if (index === -1) return str
+    const first = str.slice(0, index)
+    const second = str.slice(index, index + input.length)
+    const third = str.slice(index + input.length)
+    return (
+      <>
+        {first}
+        <span className="highlight">{second}</span>
+        {third}
+      </>
+    )
+  }
+
   return (
     <motion.div
       className="suggestions-container"
@@ -149,7 +168,39 @@ function Suggestions(props: SuggestionsProps) {
       }}
       exit={{opacity: 0, y: -10}}
     >
-      {props.header && props.list.length !== 0 &&
+      {props.history && props.history.length !== 0 &&
+        (
+          <>
+            <motion.div
+              className="header"
+              layout
+              key={"header"}
+              initial={{opacity: 0, y: -10, scale: 1.05}}
+              animate={{opacity: 1, y: 0, scale: 1, transition: {delay: 0}}}
+            >
+              History:
+            </motion.div>
+            {props.history.map((el, i) => {
+              return (
+                <motion.div
+                  className="suggestion"
+                  layout
+                  transition={{layout: {duration: 0.2, ease: "easeOut"}}}
+                  key={el}
+                  initial={{opacity: 0, y: -10, scale: 1.05}}
+                  animate={{opacity: 1, y: 0, scale: 1, transition: {delay: i * 0.02}}}
+                >
+                  {el}
+                </motion.div>
+              )
+            })}
+          </>
+        )
+      }
+
+
+      {
+        props.header && props.list.length !== 0 &&
           <motion.div
               className="header"
               layout
@@ -158,21 +209,26 @@ function Suggestions(props: SuggestionsProps) {
               animate={{opacity: 1, y: 0, scale: 1, transition: {delay: 0}}}
           >
               Trending:
-          </motion.div>}
-      {props.list.map((el, i) => {
-        return (
-          <motion.div
-            className="suggestion"
-            layout
-            transition={{layout: {duration: 0.2, ease: "easeOut"}}}
-            key={el}
-            initial={{opacity: 0, y: -10, scale: 1.05}}
-            animate={{opacity: 1, y: 0, scale: 1, transition: {delay: i * 0.02}}}
-          >
-            {el}
           </motion.div>
-        )
-      })}
+      }
+      {
+        props.list.map((el, i) => {
+          return (
+            <motion.div
+              className="suggestion"
+              layout
+              transition={{layout: {duration: 0.2, ease: "easeOut"}}}
+              key={el}
+              initial={{opacity: 0, y: -10, scale: 1.05}}
+              animate={{opacity: 1, y: 0, scale: 1, transition: {delay: i * 0.02}}}
+            >
+
+              {props.input?.length  ? highlightInputMatch(el, props.input) : el}
+
+            </motion.div>
+          )
+        })
+      }
     </motion.div>
   )
 }

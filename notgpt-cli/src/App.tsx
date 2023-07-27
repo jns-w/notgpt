@@ -21,6 +21,8 @@ function App() {
     const response = await axios.get(`/api/search?term=${input}`)
       .then(r => r.data)
     console.log(response)
+    // update search history
+    window.localStorage.setItem("NGPT_HIST", JSON.stringify([input, ...JSON.parse(window.localStorage.getItem("NGPT_HIST") || "[]")]))
   }
 
   useIsomorphicLayoutEffect(() => {
@@ -39,7 +41,6 @@ function App() {
         {resultsModal && (
           <ResultsModal isMounted={resultsModal} searchString={""} setMount={setResultsModal}/>
         )}
-
       </AnimatePresence>
     </div>
   )

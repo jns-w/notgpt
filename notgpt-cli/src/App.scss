@@ -33,7 +33,7 @@
   font-family: "Inter", sans-serif;
   font-size: 20px;
   word-wrap: break-word;
-  word-break:  break-all;
+  word-break: break-all;
   border-radius: 9px;
   padding: 10px 20px 0 20px;
   resize: none;
@@ -88,6 +88,12 @@
       background: #101010;
     }
   }
+
+
+}
+
+.highlight {
+  font-weight: 700;
 }
 
 $modal-width: 450px;
@@ -97,10 +103,10 @@ $modal-height: 200px;
   height: 100vh;
   position: absolute;
   display: flex;
-  top:0;
-  left:0;
+  top: 0;
+  left: 0;
 
-  div {                                       // modal window
+  div { // modal window
     position: absolute;
     //background: #151515;
     width: $modal-width;
@@ -124,7 +130,7 @@ $modal-height: 200px;
   -webkit-animation-iteration-count: infinite;
   -webkit-animation-name: placeholderShimmer;
   -webkit-animation-timing-function: linear;
-  }
+}
 
 @-webkit-keyframes placeholderShimmer {
   0% {
