@@ -2,6 +2,11 @@ import React, {useEffect, useRef, useState} from "react";
 import {useDebounce, useEventListener, useIsomorphicLayoutEffect, useOnClickOutside} from "usehooks-ts";
 import {AnimatePresence, motion} from "framer-motion";
 import axios from "axios";
+import {useAtom} from "jotai";
+import {historyAtom, selectedSuggestionAtom, suggestionsCountAtom} from "../atoms/searchbar";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faAngleLeft, faChartLine} from "@fortawesome/free-solid-svg-icons";
+import {faClock} from "@fortawesome/free-regular-svg-icons";
 
 type SearchBarProps = {
   searchFn: Function,
@@ -13,28 +18,26 @@ function SearchBar(props: SearchBarProps) {
   const [input, setInput] = useState("")
   const debouncedInput = useDebounce(input, 200)
   const [lines, setLines] = useState(0)
+  const [selected, setSelected] = useAtom(selectedSuggestionAtom)
+  const [suggestionsCount, setSuggestionsCount] = useAtom(suggestionsCountAtom)
 
   const [trending, setTrending] = useState<Array<String>>(["trending1", "trending2 test test", "trending3"])
-  const [history, setHistory] = useState<Array<String>>(["porn", "porn2"])
-  const [suggestions, setSuggestions] = useState<Array<String>>([])
+  const [history, setHistory] = useAtom(historyAtom)
+  const [autocompletes, setAutocompletes] = useState<Array<String>>([]
+  )
 
   const inputRef = useRef<HTMLTextAreaElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  // Handling Clicks
-  function handleClick() {
-    setShowSuggestions(true)
-  }
-
-  function handleClickOutside() {
+  useOnClickOutside(inputRef, () => {
     setShowSuggestions(false)
-  }
-
-  useOnClickOutside(inputRef, handleClickOutside)
+    setSelected(null)
+  })
 
   useEventListener("keypress", (ev) => {
     if (ev.key === "Escape") {
-      handleClickOutside()
+      setShowSuggestions(false)
+      setSelected(null)
     } else {
       if (ev.target === inputRef.current) {
         setShowSuggestions(true)
@@ -42,11 +45,35 @@ function SearchBar(props: SearchBarProps) {
     }
   }, inputRef)
 
+  useEventListener("keydown", (ev) => {
+    switch (ev.key) {
+      case "ArrowDown":
+        ev.preventDefault()
+        if (selected === suggestionsCount - 1) {
+          setSelected(null)
+          break;
+        } else {
+          setSelected(selected === null ? 0 : selected + 1)
+        }
+        break;
+      case "ArrowUp":
+        ev.preventDefault()
+        if (selected === 0) {
+          setSelected(null)
+          break;
+        } else {
+          setSelected(selected === null ? autocompletes.length - 1 : selected - 1)
+        }
+        break;
+    }
+  }, inputRef)
+
   // Handling Typing
   function inputHandler(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setInput(e.target.value)
+    setSelected(null)
     if (input.length === 0) {
-      setSuggestions([])
+      setAutocompletes([])
     }
   }
 
@@ -73,13 +100,13 @@ function SearchBar(props: SearchBarProps) {
     // setTrending(data)
   }
 
-  async function getSuggestions() {
+  async function getAutocomplete() {
     const {data} = await axios.get(`/api/search/prefix?term=${input}`).then(res => res.data)
     let arr = []
     for (let i = 0; i < data.length; i++) {
       arr.push(data[i].term)
     }
-    setSuggestions(arr)
+    setAutocompletes(arr)
   }
 
   useIsomorphicLayoutEffect(() => {
@@ -93,12 +120,12 @@ function SearchBar(props: SearchBarProps) {
   useEffect(() => {
     const width: number = getWidth()
     setLines(Math.floor(width / 350))
-    if (input.length === 1) getSuggestions(); // immediate search on first letter for promptness
+    if (input.length === 1) getAutocomplete(); // immediate search on first letter for promptness
   }, [input])
 
   useEffect(() => {
     if (input) {
-      getSuggestions()
+      getAutocomplete()
     }
   }, [debouncedInput])
 
@@ -111,29 +138,42 @@ function SearchBar(props: SearchBarProps) {
         value={input}
         className="search"
         placeholder="type here to search"
-        onClick={() => handleClick()}
+        onClick={() => setShowSuggestions(true)}
         onChange={(e) => inputHandler(e)}
         onKeyDown={(e) => keyHandler(e)}
         style={{height: `${45 + (lines) * 24}px`}}
-        // transition={ {height: {duration: 0.2, ease: "easeOut", type: "spring", stiffness: 1000, damping: 50, bounce: 100}}}
       />
       <canvas ref={canvasRef} style={{display: "none"}}/>
       <AnimatePresence>
-        {showSuggestions && !input && <Suggestions list={trending} history={history} header={"trending"}/>}
-        {showSuggestions && input && suggestions && <Suggestions list={suggestions} input={input}/>}
+        {/*{showSuggestions && !input && <Suggestions list={trending} history={history} header={"trending"}/>}*/}
+        {showSuggestions && !input && <Suggestions trending={trending} history={history}/>}
+        {showSuggestions && input &&
+            <Suggestions trending={trending} history={history} autocompletes={autocompletes} input={input}/>}
       </AnimatePresence>
     </div>
   )
 }
 
 type SuggestionsProps = {
-  list: Array<String>,
   history?: Array<String>,
+  trending?: Array<String>,
+  autocompletes?: Array<String>,
   header?: String,
   input?: String
 }
 
+type SuggestionItem = {
+  type: "header" | "history" | "trending" | "autocomplete",
+  text: String,
+  index?: number
+}
+
 function Suggestions(props: SuggestionsProps) {
+  const [selected,] = useAtom(selectedSuggestionAtom)
+  const [count, setCount] = useAtom(suggestionsCountAtom)
+  const [history, setHistory] = useAtom(historyAtom)
+
+  const [suggestions, setSuggestions] = useState<SuggestionItem[]>([])
 
   function highlightInputMatch(str: String, input: String) {
     const index = str.toLowerCase().indexOf(input.toLowerCase())
@@ -149,6 +189,63 @@ function Suggestions(props: SuggestionsProps) {
       </>
     )
   }
+
+  // compile different sources of suggestions
+  useEffect(() => {
+    let arr: SuggestionItem[] = []
+    let count = 0
+
+    if (!props.input) {
+      // search history
+      if (props.history && props.history.length !== 0) {
+        arr.push({type: "header", text: "Search history:"})
+        for (let i = 0; i < 5 && i < props.history.length; i++) {
+          arr.push({type: "history", text: props.history[i], index: count++})
+        }
+      }
+      // trending
+      if (props.trending && props.trending.length !== 0) {
+        arr.push({type: "header", text: "Trending:"})
+        for (let i = 0; i < props.trending.length; i++) {
+          arr.push({type: "trending", text: props.trending[i], index: count++})
+        }
+      }
+    } else {
+      // look for matches in history
+      if (props.history && props.history.length !== 0) {
+        // arr.push({type: "header", text: "Search history:"})
+        for (let i = 0; i < props.history.length; i++) {
+          if (props.history[i].toLowerCase().startsWith(props.input.toLowerCase())) {
+            arr.push({type: "history", text: props.history[i], index: count++})
+          }
+        }
+      }
+      // autocomplete
+      if (props.autocompletes && props.autocompletes.length !== 0) {
+        for (let i = 0; i < props.autocompletes.length; i++) {
+          // check for duplication with history
+          if (arr.findIndex((el) => el.text === props.autocompletes![i]) > -1) continue; // skip if found
+          arr.push({type: "autocomplete", text: props.autocompletes[i], index: count++})
+        }
+
+        // add trends if there is lack of autocomplete results
+        if (props.autocompletes.length <= 5 && props.trending && props.trending.length !== 0) {
+          arr.push({type: "header", text: "Trending:"})
+          for (let i = 0; i < props.trending.length; i++) {
+            if (arr.findIndex((el) => el.text === props.trending![i]) > -1) continue; // skip if found duplicate
+            arr.push({type: "trending", text: props.trending[i], index: count++})
+          }
+        }
+      }
+
+    }
+
+
+    setSuggestions(arr)
+
+
+  }, [props.history, props.trending, props.autocompletes]);
+
 
   return (
     <motion.div
@@ -168,67 +265,69 @@ function Suggestions(props: SuggestionsProps) {
       }}
       exit={{opacity: 0, y: -10}}
     >
-      {props.history && props.history.length !== 0 &&
-        (
-          <>
-            <motion.div
-              className="header"
-              layout
-              key={"header"}
-              initial={{opacity: 0, y: -10, scale: 1.05}}
-              animate={{opacity: 1, y: 0, scale: 1, transition: {delay: 0}}}
-            >
-              History:
-            </motion.div>
-            {props.history.map((el, i) => {
-              return (
-                <motion.div
-                  className="suggestion"
-                  layout
-                  transition={{layout: {duration: 0.2, ease: "easeOut"}}}
-                  key={el}
-                  initial={{opacity: 0, y: -10, scale: 1.05}}
-                  animate={{opacity: 1, y: 0, scale: 1, transition: {delay: i * 0.02}}}
-                >
-                  {el}
-                </motion.div>
-              )
-            })}
-          </>
-        )
-      }
 
-
-      {
-        props.header && props.list.length !== 0 &&
-          <motion.div
-              className="header"
-              layout
-              key={"header"}
-              initial={{opacity: 0, y: -10, scale: 1.05}}
-              animate={{opacity: 1, y: 0, scale: 1, transition: {delay: 0}}}
-          >
-              Trending:
-          </motion.div>
-      }
-      {
-        props.list.map((el, i) => {
+      {suggestions && suggestions.map((el, i) => {
+        if (el.type === "header") {
           return (
             <motion.div
-              className="suggestion"
+              className="header"
               layout
-              transition={{layout: {duration: 0.2, ease: "easeOut"}}}
-              key={el}
+              // key={`header-${el.text}`}
               initial={{opacity: 0, y: -10, scale: 1.05}}
               animate={{opacity: 1, y: 0, scale: 1, transition: {delay: i * 0.02}}}
             >
-
-              {props.input?.length  ? highlightInputMatch(el, props.input) : el}
-
+              {el.text} {el.text === "Search history:" ?
+              <span
+                className="clear-history-btn"
+                onClick={() => {
+                  console.log("clearing history")
+                  setHistory([])
+                }}>
+                clear all
+              </span> : ""}
             </motion.div>
           )
-        })
-      }
+        } else {
+          return (
+            <motion.div
+              className={`suggestion`}
+              layout
+              transition={{layout: {duration: 0.2, ease: "easeOut"}}}
+              key={`${el.type}-${el.text}`}
+              initial={{opacity: 0, y: -10, scale: 1.05}}
+              animate={{
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                transition: {delay: i * 0.02}
+              }}
+              exit={{opacity: 0, y: -10}}
+            >
+              <div className="text-wrapper">
+                {el.type === "history" &&
+                    <span style={{fontSize: "10px", opacity: "0.3", marginRight: "7px"}}><FontAwesomeIcon
+                        icon={faClock}/></span>}
+                {el.type === "trending" &&
+                    <span style={{fontSize: "10px", opacity: "0.3", marginRight: "7px"}}><FontAwesomeIcon
+                        icon={faChartLine}/></span>}
+                {props.input ? highlightInputMatch(el.text, props.input) : el.text}
+              </div>
+              {el.index === selected &&
+                  <motion.span
+                      layoutId={"selected"}
+                      layout
+                      className="selected"
+                      transition={{type: "spring", stiffness: 450, damping: 30, duration: 0.2}}
+                      initial={{opacity: .5, x: 20, scale: 1.05}}
+                      animate={{opacity: 1, x: 0, scale: 1}}
+                      exit={{opacity: 0, x: 20}}
+                  >
+                      <FontAwesomeIcon icon={faAngleLeft}/>
+                  </motion.span>}
+            </motion.div>
+          )
+        }
+      })}
     </motion.div>
   )
 }

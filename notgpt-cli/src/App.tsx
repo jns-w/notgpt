@@ -3,10 +3,12 @@ import "@fontsource/inter"
 import "@fontsource/inter/800.css"
 import SearchBar from "./components/SearchBar";
 import {Modal} from "./components/Modal";
-import {Suspense, useState} from "react";
+import {Suspense, useEffect, useState} from "react";
 import axios from "axios";
 import {useIsomorphicLayoutEffect} from "usehooks-ts";
 import {AnimatePresence} from "framer-motion";
+import {useAtom} from 'jotai';
+import {historyAtom} from "./atoms/searchbar";
 
 type Params = {
   [key: string]: string
@@ -15,6 +17,7 @@ type Params = {
 function App() {
   const [resultsModal, setResultsModal] = useState(false)
   const [params, setParams] = useState<Params>({})
+  const [history, setHistory] = useAtom(historyAtom)
 
   async function search(input: String) {
     setResultsModal(true)
@@ -22,7 +25,22 @@ function App() {
       .then(r => r.data)
     console.log(response)
     // update search history
-    window.localStorage.setItem("NGPT_HIST", JSON.stringify([input, ...JSON.parse(window.localStorage.getItem("NGPT_HIST") || "[]")]))
+    updateHistory(input.toLowerCase())
+  }
+
+  function updateHistory(input: String) {
+    if (!input) return;
+    if (history.includes(input)) {
+      let arr = history.filter((item) => item !== input)
+      arr.unshift(input)
+      // arr.slice(0, 4)
+      setHistory(arr)
+    } else {
+      // let arr = history.slice(0, 3)
+      let arr = history
+      arr.unshift(input)
+      setHistory(arr)
+    }
   }
 
   useIsomorphicLayoutEffect(() => {
@@ -67,11 +85,11 @@ function ResultsModal(props: ResultsModalProps) {
 
   return (
     <>
-        <Modal setMount={props.setMount}>
-          <Suspense fallback={<Loading/>}>
-            Search Results for {props.searchString}
-          </Suspense>
-        </Modal>
+      <Modal setMount={props.setMount}>
+        <Suspense fallback={<Loading/>}>
+          Search Results for {props.searchString}
+        </Suspense>
+      </Modal>
     </>
   )
 }
