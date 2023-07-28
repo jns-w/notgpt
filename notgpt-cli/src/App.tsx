@@ -19,7 +19,7 @@ function App() {
   const [params, setParams] = useState<Params>({})
   const [history, setHistory] = useAtom(historyAtom)
 
-  async function search(input: String) {
+  async function search(input: string) {
     setResultsModal(true)
     const response = await axios.get(`/api/search?term=${input}`)
       .then(r => r.data)
@@ -28,7 +28,7 @@ function App() {
     updateHistory(input.toLowerCase())
   }
 
-  function updateHistory(input: String) {
+  function updateHistory(input: string) {
     if (!input) return;
     if (history.includes(input)) {
       let arr = history.filter((item) => item !== input)
