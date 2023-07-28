@@ -35,18 +35,18 @@ function SearchBar(props: SearchBarProps) {
   })
 
   useEventListener("keypress", (ev) => {
-    if (ev.key === "Escape") {
-      setShowSuggestions(false)
-      setSelected(null)
-    } else {
       if (ev.target === inputRef.current) {
         setShowSuggestions(true)
       }
-    }
   }, inputRef)
 
   useEventListener("keydown", (ev) => {
     switch (ev.key) {
+      case "Escape":
+        ev.preventDefault()
+        setShowSuggestions(false)
+        setSelected(null)
+        break;
       case "ArrowDown":
         ev.preventDefault()
         if (selected === suggestionsCount - 1) {

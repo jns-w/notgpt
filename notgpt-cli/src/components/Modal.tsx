@@ -18,9 +18,11 @@ export const Modal = (props: ModalProps) => {
 
   useOnClickOutside(ref, closeModal)
 
-  useEventListener("keypress", (ev) => {
-    if (ev.key === "Escape") {
-      closeModal()
+  useEventListener("keydown", (ev) => {
+    switch (ev.key) {
+      case "Escape":
+        closeModal()
+        break;
     }
   });
 
