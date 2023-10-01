@@ -20,3 +20,10 @@ pub struct TrendingResponse {
     pub status: String,
     pub data: Vec<String>,
 }
+
+
+#[derive(Serialize, Debug)]
+pub struct SearchResponse {
+    pub status: String,
+    pub data: Option<Suggestion>,
+}

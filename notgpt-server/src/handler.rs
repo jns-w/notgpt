@@ -1,11 +1,11 @@
+use actix_web::{get, HttpResponse, Responder, web};
+
 use crate::{
     model::{AppState, SearchOptions},
-    response::{GenericResponse},
+    response::GenericResponse,
 };
-use actix_web::{get, put, web, HttpResponse, Responder};
-use crate::response::{PrefixResponse, TrendingResponse};
+use crate::response::{PrefixResponse, SearchResponse, TrendingResponse};
 use crate::trie::Suggestion;
-
 
 #[get("/ping")]
 async fn ping_handler() -> impl Responder {
@@ -27,7 +27,7 @@ async fn trending_handler(data: web::Data<AppState>) -> impl Responder {
 
     let response = &TrendingResponse {
         status: "success".to_string(),
-        data: result
+        data: result,
     };
     // vec!["hello world".to_string(), "hello world there".to_string(), "hell is a place \
     //     on earth".to_string(), "hello there".to_string()]
@@ -39,7 +39,6 @@ async fn trending_handler(data: web::Data<AppState>) -> impl Responder {
 async fn search_handler(
     opts: web::Query<SearchOptions>,
     data: web::Data<AppState>) -> impl Responder {
-
     let mut trie_db = data.trie_db.lock().unwrap();
     let mut search_queue = data.search_queue.lock().unwrap();
 
@@ -48,7 +47,7 @@ async fn search_handler(
         .unwrap_or(" ".to_string());
     println!("term is {}", term);
 
-    trie_db.search(term.to_string());
+    let output = trie_db.search(term.to_string());
     search_queue.enqueue(term.to_string());
 
     let len = search_queue.len();
@@ -58,8 +57,14 @@ async fn search_handler(
     let time = search_queue.peek_time();
     println!("added to q: {:?}, created at {:?}", val, time);
 
-    HttpResponse::Ok()
+    let response = SearchResponse {
+        status: "success".to_string(),
+        data: output,
+    };
+
+    HttpResponse::Ok().json(response)
 }
+
 
 #[get("/search/prefix")]
 async fn prefix_handler(
@@ -88,7 +93,7 @@ async fn prefix_handler(
 #[get("/search/exists")]
 async fn exists_handler(
     opts: web::Query<SearchOptions>,
-    data: web::Data<AppState>
+    data: web::Data<AppState>,
 ) -> impl Responder {
     let db = data.trie_db.lock().unwrap();
 

@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+
 use serde::Serialize;
 
 #[derive(Default)]
@@ -25,10 +26,11 @@ impl Trie {
         }
     }
 
-    pub fn search(&mut self, str: String) -> bool {
+    pub fn search(&mut self, str: String) -> Option<Suggestion> {
         let mut node = &mut self.root;
 
         println!("Search Function: Searching.. {}", str);
+
 
         for c in str.to_lowercase().chars() {
             node = node.children.entry(c).or_default();
@@ -36,7 +38,11 @@ impl Trie {
 
         node.weight += 1;
         node.is_end = true;
-        return true
+
+        Some(Suggestion {
+            term: str.to_string(),
+            weight: node.weight,
+        })
     }
 
     pub fn exists(&self, word: String) -> bool {
@@ -74,7 +80,7 @@ impl Trie {
         output.reverse();
         output.truncate(10); // limit output to 10
 
-        return output
+        return output;
     }
 
     pub fn collect_words(&self, node: &TrieNode, prefix: &String, words: &mut Vec<Suggestion>) {
