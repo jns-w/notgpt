@@ -18,13 +18,15 @@ function App() {
   const [resultsModal, setResultsModal] = useState(false)
   const [params, setParams] = useState<Params>({})
   const [history, setHistory] = useAtom(historyAtom)
+  const [searchResult, setSearchResult] = useState({} as any)
 
   async function search(input: string) {
     setResultsModal(true)
     const response = await axios.get(`/api/search?term=${input}`)
       .then(r => r.data)
-    console.log(response)
+    console.log("response:",response)
     // update search history
+    setSearchResult(response.data)
     updateHistory(input.toLowerCase())
   }
 
@@ -57,7 +59,7 @@ function App() {
       <SearchBar searchFn={search} query={params.q || undefined}/>
       <AnimatePresence>
         {resultsModal && (
-          <ResultsModal isMounted={resultsModal} searchString={""} setMount={setResultsModal}/>
+          <ResultsModal isMounted={resultsModal} setMount={setResultsModal} searchResult={searchResult}/>
         )}
       </AnimatePresence>
     </div>
@@ -65,29 +67,33 @@ function App() {
 }
 
 type ResultsModalProps = {
-  searchString: String,
+  searchString?: String,
   setMount: Function,
   isMounted: Boolean,
+  searchResult: any,
 }
 
 function ResultsModal(props: ResultsModalProps) {
   const [results, setResults] = useState({})
 
-  async function search() {
-    const response = await axios.get(`/api/search?term=${props.searchString}`)
-      .then(r => r.data);
-    console.log(response)
-  }
-
-  useIsomorphicLayoutEffect(() => {
-    search()
-  }, [props.searchString])
+  // async function search() {
+  //   const response = await axios.get(`/api/search?term=${props.searchString}`)
+  //     .then(r => r.data);
+  //   console.log(response)
+  // }
+  //
+  // useIsomorphicLayoutEffect(() => {
+  //   search()
+  // }, [props.searchString])
 
   return (
     <>
       <Modal setMount={props.setMount}>
         <Suspense fallback={<Loading/>}>
-          Search Results for {props.searchString}
+          Search Results for {props.searchResult.term}
+          <div>
+            term frequency: {props.searchResult.weight}
+          </div>
         </Suspense>
       </Modal>
     </>
