@@ -96,6 +96,10 @@ function SearchBar(props: SearchBarProps) {
     setAutocompletes(arr)
   }
 
+  function selectSuggestion(index: number) {
+
+  }
+
   useIsomorphicLayoutEffect(() => {
     getTrending()
     // if (props.query) {
