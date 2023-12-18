@@ -22,6 +22,7 @@ async fn ping_handler() -> impl Responder {
 async fn trending_handler(data: web::Data<AppState>) -> impl Responder {
     let result: Vec<String> = Vec::new();
     let mut trending = data.trending.lock().unwrap();
+    // let mut queue = data.search_queue.lock().unwrap();
 
     println!("trending result: {:?}", result);
 

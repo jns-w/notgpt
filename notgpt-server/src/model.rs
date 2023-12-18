@@ -32,3 +32,5 @@ pub struct Search {
 pub struct SearchOptions {
     pub term: Option<String>,
 }
+
+
