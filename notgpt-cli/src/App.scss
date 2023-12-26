@@ -153,6 +153,7 @@ $modal-height: 200px;
   display: flex;
   top: 0;
   left: 0;
+  z-index: 3;
 
   div { // modal window
     position: absolute;

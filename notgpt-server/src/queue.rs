@@ -67,6 +67,16 @@ impl<T> Queue<T> {
         })
     }
 
+    pub fn get_queue(&self) -> Vec<&T> {
+        let mut queue = Vec::new();
+        let mut curr = self.head.as_ref();
+        while let Some(node) = curr {
+            queue.push(&node.value);
+            curr = node.next.as_ref();
+        }
+        queue.to_vec()
+    }
+
     pub fn peek(&self) -> Option<&T> {
         self.head.as_ref().map(|head| &head.value)
     }
