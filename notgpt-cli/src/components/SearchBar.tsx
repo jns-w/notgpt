@@ -25,11 +25,9 @@ function SearchBar(props: SearchBarProps) {
   const [inputState, setInputState] = useAtom(inputAtom)
   const debouncedInput = useDebounce(inputState.input, 200)
   const [lines, setLines] = useState(0)
-  const [highlighted, setHighlighted] = useAtom(hightlightedSuggestionAtom)
-  const [suggestionsCount, setSuggestionsCount] = useAtom(suggestionsCountAtom)
-  const [suggestions, setSuggestions] = useAtom(suggestionsAtom)
+  const [, setHighlighted] = useAtom(hightlightedSuggestionAtom)
 
-  const [trending, setTrending] = useState<string[]>(["trending1", "trending2", "trending3"])
+  const [trending, setTrending] = useState<string[]>([])
   const [history, setHistory] = useAtom(historyAtom)
   const [autocompletes, setAutocompletes] = useState<string[]>([]
   )
@@ -82,11 +80,6 @@ function SearchBar(props: SearchBarProps) {
     return context.measureText(inputState.display).width;
   }
 
-  async function getTrending() {
-    const res = await axios.get('/api/trending').then(res => res.data)
-    // setTrending(res.data)
-  }
-
   async function getAutocomplete(string: string) {
     const res = await axios.get(`/api/search/prefix?term=${string}`).then(res => res.data)
     let arr = []
@@ -95,25 +88,6 @@ function SearchBar(props: SearchBarProps) {
     }
     setAutocompletes(arr)
   }
-
-  function selectSuggestion(index: number) {
-
-  }
-
-  useIsomorphicLayoutEffect(() => {
-    getTrending()
-    // if (props.query) {
-    //   setInputState(prev => (
-    //       {
-    //         ...prev,
-    //         input: props.query,
-    //         display: props.query
-    //       }
-    //     )
-    //   )
-    // }
-  }, [])
-
 
   useEffect(() => {
     const width: number = getWidth()
