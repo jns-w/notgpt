@@ -8,7 +8,7 @@
 
 ARG RUST_VERSION=1.68.0
 ARG APP_NAME=notgpt-server
-ARG BUILDPLATFORM=linux/x86_64
+#ARG BUILDPLATFORM=linux/x86_64
 
 ARG DOCKER_BUILDKIT=1
 
@@ -31,7 +31,7 @@ RUN apk add --no-cache clang lld musl-dev git file
 
 # This is the architecture you’re building for, which is passed in by the builder.
 # Placing it here allows the previous steps to be cached across architectures.
-ARG TARGETPLATFORM
+ARG TARGETPLATFORM=linux/x86_64
 
 # Install cross compilation build dependencies.
 RUN xx-apk add --no-cache musl-dev gcc
