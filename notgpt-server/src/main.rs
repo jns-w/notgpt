@@ -33,8 +33,8 @@ async fn main() -> std::io::Result<()> {
     println!("App running");
 
     dotenv().ok();
-    let port:u16 = std::env::var("PORT").expect("PORT must be set.").parse().unwrap();
-//     let port:u16 = 8080;
+//     let port:u16 = std::env::var("PORT").expect("PORT must be set.").parse().unwrap();
+    let port:u16 = 8080;
 
     println!("Server running at port {}", port);
 
