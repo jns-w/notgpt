@@ -29,7 +29,7 @@ export const Modal = (props: ModalProps) => {
   return (
     <div className="modal-wrapper">
       <motion.div
-        className="shine"
+        className="modal-container"
         transition={{duration: 0.2, ease: "easeOut"}}
         initial={{opacity: 0, y: -15, scale: 1.05}}
         animate={{opacity: 1, y: 0, scale: 1}}

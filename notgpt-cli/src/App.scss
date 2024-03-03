@@ -155,18 +155,35 @@ $modal-height: 200px;
   left: 0;
   z-index: 3;
 
-  div { // modal window
-    position: absolute;
-    //background: #151515;
-    width: $modal-width;
-    height: $modal-height;
-    top: calc(50% - $modal-height);
-    left: calc(50% - $modal-width / 2);
-
-    border-radius: 20px;
-    padding: 25px 20px;
-  }
 }
+
+.modal-container { // modal window
+  position: absolute;
+  background: #151515;
+  width: $modal-width;
+  height: $modal-height;
+  top: calc(50% - $modal-height);
+  left: calc(50% - $modal-width / 2);
+
+  border-radius: 20px;
+  padding: 25px 20px;
+}
+
+.results-container {
+  display: flex;
+  flex-direction: column;
+  border-radius: 10px;
+  width: 100%;
+  height: 100%;
+}
+
+.results-content {
+  display: flex;
+  height: 100%;
+  justify-content: center;
+  align-items: center;
+}
+
 
 .shine {
   background: #1d1e1e linear-gradient(to right, #1d1e1e 0%, #262628 20%, #1b1b1c 40%, #1d1e1e 100%) no-repeat;

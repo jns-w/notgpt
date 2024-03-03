@@ -3,7 +3,7 @@ import "@fontsource/inter"
 import "@fontsource/inter/800.css"
 import SearchBar from "./components/SearchBar";
 import {Modal} from "./components/Modal";
-import {Suspense, useEffect, useState} from "react";
+import {Suspense, useState} from "react";
 import axios from "axios";
 import {useIsomorphicLayoutEffect} from "usehooks-ts";
 import {AnimatePresence} from "framer-motion";
@@ -24,7 +24,7 @@ function App() {
     setResultsModal(true)
     const response = await axios.get(`/api/search?term=${input}`)
       .then(r => r.data)
-    console.log("response:",response)
+    console.log("response:", response)
     // update search history
     setSearchResult(response.data)
     updateHistory(input.toLowerCase())
@@ -76,27 +76,21 @@ type ResultsModalProps = {
 function ResultsModal(props: ResultsModalProps) {
   const [results, setResults] = useState({})
 
-  // async function search() {
-  //   const response = await axios.get(`/api/search?term=${props.searchString}`)
-  //     .then(r => r.data);
-  //   console.log(response)
-  // }
-  //
-  // useIsomorphicLayoutEffect(() => {
-  //   search()
-  // }, [props.searchString])
-
   return (
-    <>
-      <Modal setMount={props.setMount}>
-        <Suspense fallback={<Loading/>}>
-          Search Results for {props.searchResult.term}
-          <div>
-            term frequency: {props.searchResult.weight}
+    <Modal setMount={props.setMount}>
+      <Suspense fallback={<Loading/>}>
+        <div className="results-container">
+          <h2>
+            Results for "{props.searchResult.term}"
+          </h2>
+          <div className="results-content">
+            <p>
+              This term has been searched a total of {props.searchResult.weight} times.
+            </p>
           </div>
-        </Suspense>
-      </Modal>
-    </>
+        </div>
+      </Suspense>
+    </Modal>
   )
 }
 
