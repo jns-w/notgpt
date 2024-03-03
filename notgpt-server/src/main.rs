@@ -34,13 +34,12 @@ async fn main() -> std::io::Result<()> {
 
     dotenv().ok();
     let port:u16 = std::env::var("PORT").expect("PORT must be set.").parse().unwrap();
+//     let port:u16 = 8080;
 
     println!("Server running at port {}", port);
 
     HttpServer::new(move || {
         let cors = Cors::permissive()
-            .allowed_origin("http://localhost:3000")
-            .allowed_origin("http://localhost:3000/")
             .allowed_methods(vec!["GET", "POST"])
             .allowed_headers(vec![
                 header::CONTENT_TYPE,
@@ -55,7 +54,8 @@ async fn main() -> std::io::Result<()> {
             .wrap(cors)
             .wrap(Logger::default())
     })
-        .bind(("127.0.0.1", port))?
+//         .bind(("127.0.0.1", port))?
+        .bind(("0.0.0.0", port))?
         .run()
         .await
 }
