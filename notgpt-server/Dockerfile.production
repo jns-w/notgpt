@@ -22,7 +22,7 @@ ARG APP_NAME
 WORKDIR /app
 
 # Copy cross compilation utilities from the xx stage.
-COPY --from=xx ./notgpt-server /
+COPY --from=xx / /
 
 # Install host build dependencies.
 RUN apk add --no-cache clang lld musl-dev git file
