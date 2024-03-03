@@ -15,6 +15,9 @@ import {faAngleLeft, faChartLine} from "@fortawesome/free-solid-svg-icons";
 import {faClock} from "@fortawesome/free-regular-svg-icons";
 import {SuggestionItem} from "../types/suggestions";
 
+
+const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT || "https://notgpt-server.capybara.wldspace.com"
+
 type SearchBarProps = {
   searchFn: Function,
   query: string | undefined,
@@ -81,7 +84,7 @@ function SearchBar(props: SearchBarProps) {
   }
 
   async function getAutocomplete(string: string) {
-    const res = await axios.get(`/api/search/prefix?term=${string}`).then(res => res.data)
+    const res = await axios.get(`${API_ENDPOINT}/api/search/prefix?term=${string}`).then(res => res.data)
     let arr = []
     for (let i = 0; i < res.data.length; i++) {
       arr.push(res.data[i].term)

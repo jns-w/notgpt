@@ -10,6 +10,8 @@ import {AnimatePresence} from "framer-motion";
 import {useAtom} from 'jotai';
 import {historyAtom} from "./atoms/searchbar";
 
+const API_ENDPOINT = import.meta.env.VITE_API_ENDPOINT || "https://notgpt-server.capybara.wldspace.com"
+
 type Params = {
   [key: string]: string
 }
@@ -22,7 +24,7 @@ function App() {
 
   async function search(input: string) {
     setResultsModal(true)
-    const response = await axios.get(`/api/search?term=${input}`)
+    const response = await axios.get(`${API_ENDPOINT}/api/search?term=${input}`)
       .then(r => r.data)
     console.log("response:", response)
     // update search history
