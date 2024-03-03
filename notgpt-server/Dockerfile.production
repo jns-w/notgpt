@@ -10,6 +10,8 @@ ARG RUST_VERSION=1.68.0
 ARG APP_NAME=notgpt-server
 ARG BUILDPLATFORM=linux/amd64
 
+ARG DOCKER_BUILDKIT=1
+
 ################################################################################
 # xx is a helper for cross-compilation.
 # See https://github.com/tonistiigi/xx/ for more information.
