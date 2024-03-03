@@ -8,6 +8,7 @@
 
 ARG RUST_VERSION=1.68.0
 ARG APP_NAME=notgpt-server
+ARG BUILDPLATFORM=linux/amd64
 
 ################################################################################
 # xx is a helper for cross-compilation.
