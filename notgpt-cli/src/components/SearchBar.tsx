@@ -362,6 +362,12 @@ function Suggestions(props: SuggestionsProps) {
           return (
             <motion.div
               className={`suggestion ${el.index === selected ? "isHighlighted" : ""}`}
+              onClick={() => {
+                setInputState(prev => (
+                  {...prev, input: el.text, display: el.text}))
+                props.searchFn(el.text)
+              }
+            }
               layout
               transition={{layout: {duration: 0.2, ease: "easeOut"}}}
               key={`${el.type}-${el.text}`}
