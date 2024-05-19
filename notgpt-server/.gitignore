@@ -29,3 +29,6 @@ Thumbs.db
 debug.log
 logs
 logs/
+
+# seeder files
+/seeder
