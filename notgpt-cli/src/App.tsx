@@ -26,7 +26,7 @@ function App() {
     setResultsModal(true)
     const response = await axios.get(`${API_ENDPOINT}/api/search?term=${input}`)
       .then(r => r.data)
-    console.log("response:", response)
+    // console.log("response:", response)
     // update search history
     setSearchResult(response.data)
     updateHistory(input.toLowerCase())
