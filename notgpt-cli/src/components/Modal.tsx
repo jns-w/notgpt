@@ -29,7 +29,13 @@ export const Modal = (props: ModalProps) => {
   });
 
   return (
-    <div className="modal-wrapper">
+    <motion.div
+      className="modal-wrapper"
+      initial={{opacity: 0}}
+      animate={{opacity: 1}}
+      exit={{opacity: 0}}
+      transition={{duration: 0.3}}
+    >
       <motion.div
         ref={ref}
         className="modal-container"
@@ -50,7 +56,6 @@ export const Modal = (props: ModalProps) => {
           <FontAwesomeIcon icon={faCircleXmark} onClick={() => closeModal()} />
         </motion.div>
       </motion.div>
-
-    </div>
+    </motion.div>
   );
 };
