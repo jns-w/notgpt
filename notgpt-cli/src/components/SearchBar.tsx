@@ -11,7 +11,7 @@ import {
   suggestionsCountAtom
 } from "../atoms/searchbar";
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
-import {faAngleLeft, faChartLine} from "@fortawesome/free-solid-svg-icons";
+import {faCircleXmark, faChartLine} from "@fortawesome/free-solid-svg-icons";
 import {faClock} from "@fortawesome/free-regular-svg-icons";
 import {SuggestionItem} from "../types/suggestions";
 
@@ -109,17 +109,33 @@ function SearchBar(props: SearchBarProps) {
   return (
     <div className="search-container">
       <h2>NotGPT</h2>
+      <div className="search-text-area-wrapper">
       <textarea
         ref={inputRef}
         value={inputState.display}
-        className="search"
+        className="search-text-area"
         placeholder="type here to search"
         onClick={() => setShowSuggestions(true)}
         onChange={(e) => inputHandler(e)}
         onKeyDown={(e) => keyHandler(e)}
         style={{height: `${45 + (lines) * 24}px`}}
-      />
-      <canvas ref={canvasRef} style={{display: "none"}}/>
+      >
+      </textarea>
+        <canvas ref={canvasRef} style={{display: "none"}}/>
+        <AnimatePresence>
+          {inputState.display &&
+              <motion.div
+                  className="clear-input-btn"
+                  initial={{opacity: 0, scale: 0.5}}
+                  animate={{opacity: 1, scale: 1}}
+                  exit={{opacity: 0, scale: 0.5}}
+                  transition={{duration: 0.1, type: "spring", stiffness: 500, damping: 30, bounce: 0.5}}
+              >
+                  <FontAwesomeIcon icon={faCircleXmark}
+                                   onClick={() => setInputState(prev => ({...prev, input: "", display: ""}))}/>
+              </motion.div>}
+        </AnimatePresence>
+      </div>
       <AnimatePresence>
         {/*{showSuggestions && !input && <Suggestions list={trending} history={history} header={"trending"}/>}*/}
         {showSuggestions && !inputState.input &&
@@ -367,7 +383,7 @@ function Suggestions(props: SuggestionsProps) {
                   {...prev, input: el.text, display: el.text}))
                 props.searchFn(el.text)
               }
-            }
+              }
               layout
               transition={{layout: {duration: 0.2, ease: "easeOut"}}}
               key={`${el.type}-${el.text}`}

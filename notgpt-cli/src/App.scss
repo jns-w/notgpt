@@ -8,8 +8,9 @@
 
 .search-container {
   margin-top: 50%;
-
+  position: relative;
   width: 400px;
+
 
   h2 {
     font-family: "Inter", sans-serif;
@@ -24,7 +25,11 @@
   }
 }
 
-.search {
+.search-text-area-wrapper {
+  position: relative;
+}
+
+.search-text-area {
   outline: none;
   border: none;
   user-select: none;
@@ -40,6 +45,20 @@
   box-sizing: border-box;
   height: auto;
   transition: height 0.1s ease-out;
+}
+
+.clear-input-btn {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  cursor: pointer;
+  color: #afafaf;
+  opacity: 0.7;
+  font-size: 18px;
+
+  &:hover {
+    color: #525252;
+  }
 }
 
 
