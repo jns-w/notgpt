@@ -1,6 +1,8 @@
 import {useRef, useState} from "react";
 import {useEventListener, useOnClickOutside} from "usehooks-ts";
 import {motion} from "framer-motion";
+import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
+import {faCircleXmark} from "@fortawesome/free-solid-svg-icons";
 
 type ModalProps = {
   setMount: Function,
@@ -31,13 +33,24 @@ export const Modal = (props: ModalProps) => {
       <motion.div
         ref={ref}
         className="modal-container"
-        transition={{duration: 0.2, ease: "easeOut"}}
-        initial={{opacity: 0, y: -15, scale: 1.05}}
-        animate={{opacity: 1, y: 0, scale: 1}}
-        exit={{opacity: 0, y: -15, scale: 1.05}}
+        transition={{duration: 0.3, ease: "easeOut"}}
+        initial={{opacity: 0, scale: 1.1, filter: "blur(15px)"}}
+        animate={{opacity: 1, scale: 1, filter: "blur(0px)"}}
+        exit={{opacity: 0, scale: 1.1, filter: "blur(15px)"}}
       >
         {props.children}
+        <motion.div
+          className="close-modal-btn"
+          initial={{opacity: 0, scale: 0.6}}
+          animate={{opacity: 1, scale: 1,
+            transition: {duration: 0.3, delay: 0.35, type: "spring", stiffness: 260}
+          }}
+          transition={{delay: 0}}
+        >
+          <FontAwesomeIcon icon={faCircleXmark} onClick={() => closeModal()} />
+        </motion.div>
       </motion.div>
+
     </div>
   );
 };

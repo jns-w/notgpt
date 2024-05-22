@@ -176,7 +176,7 @@ $modal-height: 200px;
 }
 
 .modal-container { // modal window
-  position: absolute;
+  position: relative;
   background: #151515;
   width: $modal-width;
   height: $modal-height;
@@ -185,6 +185,20 @@ $modal-height: 200px;
 
   border-radius: 20px;
   padding: 25px 20px;
+}
+
+.close-modal-btn {
+  top: -10px;
+  right: -10px;
+  z-index: 5;
+  font-size: 30px;
+  position: absolute;
+  cursor: pointer;
+  color: #d6d6d7;
+
+  &:hover {
+    color: #afafaf;
+  }
 }
 
 .results-container {
